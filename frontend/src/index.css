@@ -1,0 +1,324 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Design Tokens — Premium Light Dual-Tone ──────────────────────────────── */
+@layer base {
+  :root {
+    /* Backgrounds */
+    --bg-base:       #F8F7F4;   /* warm off-white — main app bg */
+    --bg-surface:    #FFFFFF;   /* pure white — sidebar, cards */
+    --bg-card:       #FFFFFF;
+    --bg-hover:      #F3F2EF;   /* subtle warm hover */
+    --bg-secondary:  #FAFAF8;
+
+    /* Borders */
+    --border:        #E5E5E5;
+    --border-dim:    #EBEAE6;
+    --border-strong: #D4D3CF;
+
+    /* Primary accent — Crimson Red */
+    --accent:        #D32F2F;
+    --accent-dark:   #B71C1C;
+    --accent-light:  #FFEBEE;   /* soft red bg for badges */
+    --accent-mid:    #FFCDD2;   /* soft red border */
+
+    /* Secondary accent — Deep Charcoal */
+    --charcoal:      #111111;
+    --charcoal-mid:  #333333;
+
+    /* Text */
+    --text-1:        #111111;   /* headings */
+    --text-2:        #444444;   /* body */
+    --text-3:        #666666;   /* subtext / muted labels */
+    --text-4:        #999999;   /* placeholders */
+
+    /* Status */
+    --success-bg:    #E8F5E9;
+    --success-text:  #2E7D32;
+    --success-border:#A5D6A7;
+
+    --warning-bg:    #FFF8E1;
+    --warning-text:  #E65100;
+    --warning-border:#FFE082;
+
+    --danger-bg:     #FFEBEE;
+    --danger-text:   #C62828;
+    --danger-border: #FFCDD2;
+
+    --info-bg:       #E3F2FD;
+    --info-text:     #1565C0;
+    --info-border:   #90CAF9;
+
+    /* Amber kept for brand elements (SiteIQ orange dots) */
+    --amber:         #D32F2F;   /* remapped to crimson in light theme */
+    --amber-glow:    #FFEBEE;
+    --amber-dim:     #FFCDD2;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { -webkit-font-smoothing: antialiased; }
+
+  body {
+    background: var(--bg-base);
+    color: var(--text-1);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  h1, h2, h3, h4, h5 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text-1);
+  }
+
+  /* ── Form controls ── */
+  input, select, textarea {
+    background:   #FFFFFF;
+    color:        var(--text-1);
+    border:       1px solid var(--border);
+    border-radius: 8px;
+    padding:      8px 12px;
+    font-size:    13px;
+    font-family:  'Inter', sans-serif;
+    outline:      none;
+    transition:   border-color .15s, box-shadow .15s;
+    width:        100%;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow:   0 0 0 3px rgba(211,47,47,0.08);
+  }
+  input::placeholder { color: var(--text-4); }
+  select option { background: #FFFFFF; color: var(--text-1); }
+}
+
+/* ─── Component layer ────────────────────────────────────────────────────────── */
+@layer components {
+
+  /* Cards */
+  .card {
+    background:    var(--bg-surface);
+    border:        1px solid var(--border);
+    border-radius: 12px;
+    padding:       20px;
+    box-shadow:    0 1px 3px rgba(0,0,0,0.05);
+  }
+  .card-sm {
+    background:    var(--bg-surface);
+    border:        1px solid var(--border);
+    border-radius: 10px;
+    padding:       14px 16px;
+    box-shadow:    0 1px 3px rgba(0,0,0,0.04);
+  }
+
+  /* Primary button — Crimson */
+  .btn-primary {
+    background:   var(--accent);
+    color:        #FFFFFF;
+    font-weight:  600;
+    font-size:    13px;
+    padding:      9px 18px;
+    border-radius: 8px;
+    border:       none;
+    cursor:       pointer;
+    transition:   background .15s, transform .1s, box-shadow .15s;
+    font-family:  'Space Grotesk', sans-serif;
+    letter-spacing: 0.01em;
+    box-shadow:   0 1px 3px rgba(211,47,47,0.25);
+  }
+  .btn-primary:hover  { background: var(--accent-dark); box-shadow: 0 2px 8px rgba(211,47,47,0.3); }
+  .btn-primary:active { transform: scale(.98); }
+  .btn-primary:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+
+  /* Ghost button */
+  .btn-ghost {
+    background:   transparent;
+    color:        var(--text-2);
+    font-size:    13px;
+    padding:      8px 14px;
+    border-radius: 8px;
+    border:       1px solid var(--border);
+    cursor:       pointer;
+    transition:   background .15s, color .15s, border-color .15s;
+    font-family:  'Inter', sans-serif;
+  }
+  .btn-ghost:hover {
+    background:   var(--bg-hover);
+    color:        var(--text-1);
+    border-color: var(--border-strong);
+  }
+
+  /* Status Badges — light pill style */
+  .badge {
+    display:       inline-flex;
+    align-items:   center;
+    padding:       3px 9px;
+    border-radius: 20px;
+    font-size:     11px;
+    font-weight:   500;
+    letter-spacing: .02em;
+    border:        1px solid transparent;
+  }
+  .badge-green  {
+    background: var(--success-bg);
+    color:      var(--success-text);
+    border-color: var(--success-border);
+  }
+  .badge-amber  {
+    background: var(--warning-bg);
+    color:      var(--warning-text);
+    border-color: var(--warning-border);
+  }
+  .badge-red    {
+    background: var(--danger-bg);
+    color:      var(--danger-text);
+    border-color: var(--danger-border);
+  }
+  .badge-blue   {
+    background: var(--info-bg);
+    color:      var(--info-text);
+    border-color: var(--info-border);
+  }
+
+  /* Labels */
+  .label {
+    font-size:    11px;
+    font-weight:  500;
+    color:        var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    margin-bottom: 6px;
+    display:      block;
+  }
+
+  /* Divider */
+  .divider { height: 1px; background: var(--border-dim); }
+
+  /* Navigation links */
+  .nav-link {
+    display:       flex;
+    align-items:   center;
+    gap:           10px;
+    padding:       9px 12px;
+    border-radius: 8px;
+    color:         var(--text-3);
+    font-size:     13px;
+    font-weight:   500;
+    cursor:        pointer;
+    transition:    background .15s, color .15s;
+    text-decoration: none;
+  }
+  .nav-link:hover  { background: var(--bg-hover);   color: var(--text-1); }
+  .nav-link.active { background: var(--accent-light); color: var(--accent); }
+  .nav-link .icon  { font-size: 15px; width: 18px; text-align: center; }
+
+  /* Data Tables */
+  .data-table {
+    width:           100%;
+    border-collapse: collapse;
+  }
+  .data-table th {
+    text-align:    left;
+    font-size:     11px;
+    font-weight:   600;
+    color:         var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    padding:       10px 14px;
+    border-bottom: 1.5px solid var(--border);
+    background:    var(--bg-secondary);
+  }
+  .data-table td {
+    padding:       11px 14px;
+    border-bottom: 1px solid var(--border-dim);
+    color:         var(--text-1);
+    font-size:     13px;
+    background:    #FFFFFF;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td      { background: var(--bg-hover); }
+
+  /* Upload / drop zone */
+  .dropzone {
+    border:        1.5px dashed var(--border-strong);
+    border-radius: 12px;
+    padding:       32px;
+    text-align:    center;
+    cursor:        pointer;
+    transition:    border-color .2s, background .2s;
+    background:    var(--bg-secondary);
+  }
+  .dropzone:hover, .dropzone.active {
+    border-color: var(--accent);
+    background:   var(--accent-light);
+  }
+}
+
+/* ─── Scrollbar — light style ────────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-4); }
+
+/* ─── Recharts overrides — light theme ──────────────────────────────────────── */
+
+/* CartesianGrid — ultra-light lines */
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: #EBEBEB !important;
+  stroke-dasharray: 4 4;
+}
+
+/* Axis text */
+.recharts-cartesian-axis-tick-value {
+  fill: var(--text-3) !important;
+  font-size: 11px !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+/* Tooltip */
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background:    #FFFFFF !important;
+  border:        1px solid var(--border) !important;
+  border-radius: 8px !important;
+  box-shadow:    0 4px 12px rgba(0,0,0,0.08) !important;
+  font-family:   'Inter', sans-serif !important;
+  font-size:     12px !important;
+}
+.recharts-default-tooltip .recharts-tooltip-label {
+  color: var(--text-2) !important;
+  font-weight: 600 !important;
+  margin-bottom: 4px !important;
+}
+.recharts-default-tooltip .recharts-tooltip-item {
+  color: var(--text-1) !important;
+}
+
+/* Legend */
+.recharts-legend-item-text {
+  color: var(--text-2) !important;
+  font-size: 12px !important;
+}
+
+/* Polar grid (radar chart) */
+.recharts-polar-grid-concentric-polygon,
+.recharts-polar-grid-angle line {
+  stroke: #EBEBEB !important;
+}
+.recharts-polar-angle-axis-tick-value {
+  fill: var(--text-3) !important;
+  font-size: 10px !important;
+}
+
+/* ─── Progress ring animation ────────────────────────────────────────────────── */
+@keyframes ring-fill { from { stroke-dashoffset: 283; } }
+.ring-animated { animation: ring-fill .8s ease-out forwards; }
+
+/* ─── Spinner ────────────────────────────────────────────────────────────────── */
+@keyframes spin { to { transform: rotate(360deg); } }

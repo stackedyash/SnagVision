@@ -1,0 +1,130 @@
+from sqlalchemy import (
+    Column, String, Integer, Float, DateTime, ForeignKey,
+    Text, Enum, JSON, Boolean, create_engine
+)
+from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.dialects.postgresql import UUID
+from datetime import datetime
+import uuid
+import enum
+
+Base = declarative_base()
+
+
+def gen_uuid():
+    return str(uuid.uuid4())
+
+
+class UserRole(str, enum.Enum):
+    admin = "admin"
+    project_manager = "project_manager"
+    site_supervisor = "site_supervisor"
+    client = "client"
+
+
+class UploadStatus(str, enum.Enum):
+    pending = "pending"
+    analysing = "analysing"
+    done = "done"
+    failed = "failed"
+
+
+class User(Base):
+    __tablename__ = "users"
+    id = Column(String, primary_key=True, default=gen_uuid)
+    name = Column(String, nullable=False)
+    email = Column(String, unique=True, nullable=False)
+    hashed_password = Column(String, nullable=False)
+    role = Column(Enum(UserRole), default=UserRole.site_supervisor)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    uploads = relationship("MediaUpload", back_populates="supervisor")
+
+
+class Project(Base):
+    __tablename__ = "projects"
+    id = Column(String, primary_key=True, default=gen_uuid)
+    name = Column(String, nullable=False)
+    location = Column(String)
+    total_floors = Column(Integer, default=1)
+    planned_completion = Column(DateTime)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    floors = relationship("Floor", back_populates="project", cascade="all, delete")
+    milestones = relationship("Milestone", back_populates="project", cascade="all, delete")
+    estimated_completion_date = Column(DateTime, nullable=True)
+
+class Floor(Base):
+    __tablename__ = "floors"
+    id = Column(String, primary_key=True, default=gen_uuid)
+    project_id = Column(String, ForeignKey("projects.id"), nullable=False)
+    floor_number = Column(Integer, nullable=False)
+    label = Column(String)
+    progress_pct = Column(Float, default=0.0)
+    project = relationship("Project", back_populates="floors")
+    units = relationship("Unit", back_populates="floor", cascade="all, delete")
+
+
+class Unit(Base):
+    __tablename__ = "units"
+    id = Column(String, primary_key=True, default=gen_uuid)
+    floor_id = Column(String, ForeignKey("floors.id"), nullable=False)
+    unit_number = Column(String, nullable=False)
+    progress_pct = Column(Float, default=0.0)
+    floor = relationship("Floor", back_populates="units")
+    rooms = relationship("Room", back_populates="unit", cascade="all, delete")
+
+
+class Room(Base):
+    __tablename__ = "rooms"
+    id = Column(String, primary_key=True, default=gen_uuid)
+    unit_id = Column(String, ForeignKey("units.id"), nullable=False)
+    name = Column(String, nullable=False)
+    progress_pct = Column(Float, default=0.0)
+    last_analysed = Column(DateTime)
+    unit = relationship("Unit", back_populates="rooms")
+    uploads = relationship("MediaUpload", back_populates="room")
+    analyses = relationship("AIAnalysis", back_populates="room", cascade="all, delete")
+
+
+class MediaUpload(Base):
+    __tablename__ = "media_uploads"
+    id = Column(String, primary_key=True, default=gen_uuid)
+    room_id = Column(String, ForeignKey("rooms.id"), nullable=False)
+    supervisor_id = Column(String, ForeignKey("users.id"), nullable=False)
+    gcs_url = Column(String, nullable=False)
+    gcs_path = Column(String, nullable=False)
+    media_type = Column(String)  # photo / video / 360
+    file_name = Column(String)
+    notes = Column(Text)
+    status = Column(Enum(UploadStatus), default=UploadStatus.pending)
+    uploaded_at = Column(DateTime, default=datetime.utcnow)
+    room = relationship("Room", back_populates="uploads")
+    supervisor = relationship("User", back_populates="uploads")
+    analysis = relationship("AIAnalysis", back_populates="upload", uselist=False)
+
+
+class AIAnalysis(Base):
+    __tablename__ = "ai_analyses"
+    id = Column(String, primary_key=True, default=gen_uuid)
+    room_id = Column(String, ForeignKey("rooms.id"), nullable=False)
+    upload_id = Column(String, ForeignKey("media_uploads.id"), nullable=False)
+    # Component-level progress (JSON dict)
+    components = Column(JSON)   # {"flooring": 90, "painting": 80, ...}
+    overall_pct = Column(Float)
+    ai_notes = Column(Text)
+    prev_overall_pct = Column(Float)   # for change detection
+    delta_pct = Column(Float)
+    change_flag = Column(String)        # progress / stalled / rework
+    analysed_at = Column(DateTime, default=datetime.utcnow)
+    room = relationship("Room", back_populates="analyses")
+    upload = relationship("MediaUpload", back_populates="analysis")
+
+
+class Milestone(Base):
+    __tablename__ = "milestones"
+    id = Column(String, primary_key=True, default=gen_uuid)
+    project_id = Column(String, ForeignKey("projects.id"), nullable=False)
+    label = Column(String, nullable=False)
+    target_pct = Column(Float)
+    target_date = Column(DateTime)
+    achieved = Column(Boolean, default=False)
+    project = relationship("Project", back_populates="milestones")

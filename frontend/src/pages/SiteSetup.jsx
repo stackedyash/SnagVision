@@ -28,19 +28,32 @@ const ROOM_OPTIONS = [
 
 // ─── Helper: convert PDF page → data URL via canvas ───────────────────────────
 async function pdfToDataUrl(file) {
-  // Dynamic import so PDF.js is only loaded when needed
-  const pdfjsLib = await import('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js')
-  pdfjsLib.GlobalWorkerOptions.workerSrc =
-    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
-  const ab  = await file.arrayBuffer()
-  const pdf = await pdfjsLib.getDocument({ data: ab }).promise
+  // Use pdfjs-dist npm package (installed via package.json)
+  const pdfjsLib = await import('pdfjs-dist')
+
+  // Worker must point to the bundled worker file inside pdfjs-dist
+  // Vite serves node_modules statically so this URL works at runtime
+  pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+    'pdfjs-dist/build/pdf.worker.min.mjs',
+    import.meta.url
+  ).toString()
+
+  const arrayBuffer = await file.arrayBuffer()
+  const pdf  = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
   const page = await pdf.getPage(1)
-  const vp   = page.getViewport({ scale: 2 })
-  const c    = document.createElement('canvas')
-  c.width    = vp.width
-  c.height   = vp.height
-  await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise
-  return c.toDataURL('image/png')
+
+  // scale: 3 → high-res render so hotspots stay sharp after zoom
+  const viewport = page.getViewport({ scale: 3 })
+  const canvas   = document.createElement('canvas')
+  canvas.width   = viewport.width
+  canvas.height  = viewport.height
+
+  await page.render({
+    canvasContext: canvas.getContext('2d'),
+    viewport,
+  }).promise
+
+  return canvas.toDataURL('image/png')
 }
 
 export default function SiteSetup() {

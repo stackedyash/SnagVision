@@ -14,4 +14,18 @@ export default defineConfig({
       '/uploads': 'http://localhost:8000',
     },
   },
+  optimizeDeps: {
+    // Tell Vite to pre-bundle pdfjs-dist so the worker URL resolves correctly
+    include: ['pdfjs-dist'],
+  },
+  build: {
+    rollupOptions: {
+      // Keep pdfjs worker as a separate chunk so import.meta.url works
+      output: {
+        manualChunks: {
+          pdfjs: ['pdfjs-dist'],
+        },
+      },
+    },
+  },
 })

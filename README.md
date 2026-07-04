@@ -10,7 +10,7 @@ AI-powered construction progress tracking for IEVO. Built for POC demo.
 |---|---|
 | Frontend | React 18 + Vite + Tailwind + Recharts |
 | Backend | FastAPI + SQLAlchemy |
-| AI | Cohere API (multimodal image analysis) |
+| AI | Gemini API (multimodal image analysis) |
 | Database | PostgreSQL 16 |
 | Storage | Google Cloud Storage (local fallback for POC) |
 | Vector DB | ChromaDB (for embedding history) |

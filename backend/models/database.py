@@ -31,10 +31,10 @@ class UploadStatus(str, enum.Enum):
 
 class User(Base):
     __tablename__ = "users"
-    id = Column(String, primary_key=True, default=gen_uuid)
-    name = Column(String, nullable=False)
-    email = Column(String, unique=True, nullable=False)
-    hashed_password = Column(String, nullable=False)
+    id = Column(String(36), primary_key=True, default=gen_uuid)
+    name = Column(String(255), nullable=False)
+    email = Column(String(255), unique=True, nullable=False)
+    hashed_password = Column(String(255), nullable=False)
     role = Column(Enum(UserRole), default=UserRole.site_supervisor)
     created_at = Column(DateTime, default=datetime.utcnow)
     uploads = relationship("MediaUpload", back_populates="supervisor")
@@ -42,8 +42,8 @@ class User(Base):
 
 class Project(Base):
     __tablename__ = "projects"
-    id = Column(String, primary_key=True, default=gen_uuid)
-    name = Column(String, nullable=False)
+    id = Column(String(36), primary_key=True, default=gen_uuid)
+    name = Column(String(255), nullable=False)
     location = Column(String)
     total_floors = Column(Integer, default=1)
     planned_completion = Column(DateTime)
@@ -54,8 +54,8 @@ class Project(Base):
 
 class Floor(Base):
     __tablename__ = "floors"
-    id = Column(String, primary_key=True, default=gen_uuid)
-    project_id = Column(String, ForeignKey("projects.id"), nullable=False)
+    id = Column(String(36), primary_key=True, default=gen_uuid)
+    project_id = Column(String(36), ForeignKey("projects.id"), nullable=False)
     floor_number = Column(Integer, nullable=False)
     label = Column(String)
     progress_pct = Column(Float, default=0.0)
@@ -65,9 +65,9 @@ class Floor(Base):
 
 class Unit(Base):
     __tablename__ = "units"
-    id = Column(String, primary_key=True, default=gen_uuid)
-    floor_id = Column(String, ForeignKey("floors.id"), nullable=False)
-    unit_number = Column(String, nullable=False)
+    id = Column(String(36), primary_key=True, default=gen_uuid)
+    floor_id = Column(String(36), ForeignKey("floors.id"), nullable=False)
+    unit_number = Column(String(255), nullable=False)
     progress_pct = Column(Float, default=0.0)
     floor = relationship("Floor", back_populates="units")
     rooms = relationship("Room", back_populates="unit", cascade="all, delete")
@@ -75,9 +75,9 @@ class Unit(Base):
 
 class Room(Base):
     __tablename__ = "rooms"
-    id = Column(String, primary_key=True, default=gen_uuid)
-    unit_id = Column(String, ForeignKey("units.id"), nullable=False)
-    name = Column(String, nullable=False)
+    id = Column(String(36), primary_key=True, default=gen_uuid)
+    unit_id = Column(String(36), ForeignKey("units.id"), nullable=False)
+    name = Column(String(255), nullable=False)
     progress_pct = Column(Float, default=0.0)
     last_analysed = Column(DateTime)
     unit = relationship("Unit", back_populates="rooms")
@@ -87,11 +87,11 @@ class Room(Base):
 
 class MediaUpload(Base):
     __tablename__ = "media_uploads"
-    id = Column(String, primary_key=True, default=gen_uuid)
-    room_id = Column(String, ForeignKey("rooms.id"), nullable=False)
-    supervisor_id = Column(String, ForeignKey("users.id"), nullable=False)
-    gcs_url = Column(String, nullable=False)
-    gcs_path = Column(String, nullable=False)
+    id = Column(String(36), primary_key=True, default=gen_uuid)
+    room_id = Column(String(36), ForeignKey("rooms.id"), nullable=False)
+    supervisor_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    gcs_url = Column(String(255), nullable=False)
+    gcs_path = Column(String(255), nullable=False)
     media_type = Column(String)  # photo / video / 360
     file_name = Column(String)
     notes = Column(Text)
@@ -104,9 +104,9 @@ class MediaUpload(Base):
 
 class AIAnalysis(Base):
     __tablename__ = "ai_analyses"
-    id = Column(String, primary_key=True, default=gen_uuid)
-    room_id = Column(String, ForeignKey("rooms.id"), nullable=False)
-    upload_id = Column(String, ForeignKey("media_uploads.id"), nullable=False)
+    id = Column(String(36), primary_key=True, default=gen_uuid)
+    room_id = Column(String(36), ForeignKey("rooms.id"), nullable=False)
+    upload_id = Column(String(36), ForeignKey("media_uploads.id"), nullable=False)
     # Component-level progress (JSON dict)
     components = Column(JSON)   # {"flooring": 90, "painting": 80, ...}
     overall_pct = Column(Float)
@@ -121,9 +121,9 @@ class AIAnalysis(Base):
 
 class Milestone(Base):
     __tablename__ = "milestones"
-    id = Column(String, primary_key=True, default=gen_uuid)
-    project_id = Column(String, ForeignKey("projects.id"), nullable=False)
-    label = Column(String, nullable=False)
+    id = Column(String(36), primary_key=True, default=gen_uuid)
+    project_id = Column(String(36), ForeignKey("projects.id"), nullable=False)
+    label = Column(String(255), nullable=False)
     target_pct = Column(Float)
     target_date = Column(DateTime)
     achieved = Column(Boolean, default=False)

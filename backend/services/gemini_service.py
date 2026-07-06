@@ -8,8 +8,14 @@ from google.genai import types
 from config import settings
 import asyncio
 import os 
+from dotenv import load_dotenv
 
-client = genai.Client(api_key=os.getenv.gemini_api_key)
+
+load_dotenv()
+
+print("API KEY:", os.getenv("gemini_api_key"))
+
+client = genai.Client(api_key=os.getenv("gemini_api_key"))
 
 ANALYSIS_PROMPT = """
 You are an expert furniture manufacturing and quality inspector.
